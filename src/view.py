@@ -7,6 +7,7 @@
 #  
 
 import sys
+import os
 
 import pygame
 from pygame.sprite import Sprite,Group
@@ -15,54 +16,65 @@ EMPTY_BLOCK_PATH = "static/empty.png"
 BODY_BLOCK_PATH = "static/body.png"
 APPLE_BLOCK_PATH = "static/apple.png"
 HEAD_BLOCK_PATH = "static/head.png"
+# I USED 64PX IMAGES AT FIRST BUT THEY ARE TOO BIIIIIIIIG! 
+EMPTY_BLOCK_32PX_PATH = "static/empty32px.png" 
+BODY_BLOCK_32PX_PATH = "static/body32px.png"
+APPLE_BLOCK_32PX_PATH = "static/apple32px.png"
+HEAD_BLOCK_32PX_PATH = "static/head32px.png"
+BG_COLOR = (230,230,230)
 
+IMAGES = {
+	"EMPTY" :	pygame.image.load(EMPTY_BLOCK_32PX_PATH),
+	"BODY"  :	pygame.image.load(BODY_BLOCK_32PX_PATH),
+	"APPLE"	:	pygame.image.load(APPLE_BLOCK_32PX_PATH),
+	"HEAD"  :	pygame.image.load(HEAD_BLOCK_32PX_PATH)
+}
 
-pygame.init()
-
-
-
-def doNothing():
-	return 
-	
 class Block(Sprite):
-	def __init__(self,style,screen,x='-',y='-'):
+	def __init__(self,screen,styles,x='-',y='-'):
 		super(Block,self).__init__()
 		self.screen = screen
-		self.style = style
-		self.image = pygame.image.load(BODY_BLOCK_PATH)
+		self.styles = styles
+		self.style = styles[x][y]
+		self.image = IMAGES[self.style]
 		self.rect = self.image.get_rect()
+		self.x = x
+		self.y = y
+		self.rect.x = x*32 if x != '-' else self.rect.width
+		self.rect.y = y*32 if y != '-' else self.rect.height
 		
-		self.rect.x = x if x != '-' else self.rect.width
-		self.rect.y = y if y != '-' else self.rect.height
-	
-	def blitme(self):
-		self.screen.blit(self.image,self.rect)
-		
-		
+	def update(self):
+		self.style = self.styles[self.x][self.y]
+		self.image = IMAGES[self.style]
 
 class Viewer(object):
-	def __init__(self,width=320,height=240):
-		self.screen = pygame.display.set_mode()
+	def __init__(self,width=800,height=640):
+		pygame.init()
 		self.size =(width,height)
-	def mainloop(self,status=1):
-		pygame.display.set_mode(self.size)
-		while status:
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT:
-					sys.exit()
-				else:
-					self.mainfun()
-			self.blocks.draw(self.screen)
-			pygame.display.flip()
-	def mainfun(self,function=doNothing):
-		function()			
+		self.screen = pygame.display.set_mode(self.size)
+		pygame.display.set_caption("BP-Deep-Learning Smart Snake")
+		
+	def mainloop(self):
+		self.screen.fill(BG_COLOR)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				sys.exit()
+		self.blocks.draw(self.screen)
+		pygame.display.flip()		
 		
 	def createBlocks(self,x,y):
 		self.blocks = Group()
+		style = [["EMPTY" for i in range(x)] for j in range(y)]
 		for x0 in range(x):
 			for y0 in range(y):
-				block = Block("empty",self.screen,x0*64,y0*64)
+				block = Block(self.screen,style,x0,y0)
 				self.blocks.add(block)
+		return style
+		
+	def updateBlocks(self):
+		self.blocks.update()
 				
 
-
+# ALMOST FINISHED EVERYTHING 
+# SEP.10 2020
+# LUCKY
