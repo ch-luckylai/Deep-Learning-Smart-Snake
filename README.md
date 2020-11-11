@@ -1,3 +1,13 @@
 # BP-Deep-Learning-Smart-Snake
 
-In processing.
+`In processing.`
+
+## Install requirements
+```shell
+pip install -r requirements.txt
+```
+
+## Run
+```shell
+python main.py
+```

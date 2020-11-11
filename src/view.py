@@ -40,8 +40,11 @@ class Block(Sprite):
 		self.rect = self.image.get_rect()
 		self.x = x
 		self.y = y
-		self.rect.x = x*32 if x != '-' else self.rect.width
+		self.rect.x = x*32 if x != '-' else self.rect.width 
 		self.rect.y = y*32 if y != '-' else self.rect.height
+		
+		#	I love JavaScript BETTER because I can use it like
+		#	self.rect.x = (x != "-")? x*32 : self.rect.width
 		
 	def update(self):
 		self.style = self.styles[self.x][self.y]
@@ -55,6 +58,11 @@ class Viewer(object):
 		pygame.display.set_caption("BP-Deep-Learning Smart Snake")
 		
 	def mainloop(self):
+		"""
+		It doesn't mean "loop in main" .
+		
+		It is just a body part of loop.
+		"""
 		self.screen.fill(BG_COLOR)
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -63,6 +71,16 @@ class Viewer(object):
 		pygame.display.flip()		
 		
 	def createBlocks(self,x,y):
+		"""
+		For some STUPID reasons , you have to use a square block array.
+		
+		It means , you have to make sure x == y , or it would make some
+		
+		SILLY mistakes.
+		
+		I DO NOT want to fix it because I am TOO LAZY to do it.
+		
+		"""
 		self.blocks = Group()
 		style = [["EMPTY" for i in range(x)] for j in range(y)]
 		for x0 in range(x):

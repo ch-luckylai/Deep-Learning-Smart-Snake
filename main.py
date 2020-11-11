@@ -6,18 +6,21 @@
 #  Copyright 2020 luckylai <luckylai1126@foxmail.com>
 #  
 
-from src.view import Viewer as Viewer
+from src.view import Viewer 
+from src.snake import Snake
+
+import time
+import random
 
 if __name__ == "__main__":
-
 	viewer = Viewer()
 	blocks = viewer.createBlocks(20,20)
-	blocks[10][10] = "HEAD"
-	blocks[10][9] = "BODY"
-	blocks[9][9] = "BODY"
-	blocks[9][10] = "BODY"
-	while 1:
+	snake = Snake(blocks)
+	while snake.alive:
+		snake.update(random.choice(((1,0),(-1,0),(0,1),(0,-1)))) # RANDOM FOR TESTING
 		viewer.mainloop()
 		viewer.updateBlocks()
 		
-	# FOR TEST ONLY
+		time.sleep(0.3)
+		
+	# FOR TESTING ONLY
