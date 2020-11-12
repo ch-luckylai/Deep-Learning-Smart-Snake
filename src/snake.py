@@ -11,6 +11,8 @@ import random
 class Snake(object):
 	def __init__(self,blocks,length=4):
 		self.alive = 1
+		self.defaultLength = length
+		self.defaultBlocks = blocks[:]
 		self.length = length
 		self.blocks = blocks
 		self.snake = [(10,10)]
@@ -36,12 +38,14 @@ class Snake(object):
 			self.blocks[x+dx][y+dy] = 'HEAD'
 			
 	def spawnApple(self):
-		x,y = random.randint(0,len(self.blocks)),random.randint(0,len(self.blocks[0]))
+		x,y = random.randint(0,len(self.blocks)-1),random.randint(0,len(self.blocks[0])-1)
 		while self.blocks[x][y] != "EMPTY":
-			x,y = random.randint(len(self.blocks)),random.randint(len(self.blocks[0]))
+			x,y = random.randint(len(self.blocks)-1),random.randint(len(self.blocks[0])-1)
 		self.blocks[x][y] = 'APPLE'
 	def die(self):
 		self.alive = 0
 		print("Oh, your snake was died.")
 		return 0
+
+
 		
