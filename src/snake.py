@@ -9,14 +9,12 @@
 import random
 
 class Snake(object):
-	def __init__(self,blocks,length=4):
+	def __init__(self,blocks,length=3):
 		self.gotScore = 0
 		self.alive = 1
-		self.defaultLength = length
-		self.defaultBlocks = blocks[:]
 		self.length = length
 		self.blocks = blocks
-		self.snake = [(10,10)]
+		self.snake = [(int(len(self.blocks)/2),int(len(self.blocks)/2))]
 		self.direction = (1,0)
 		self.spawnApple()
 		
@@ -63,9 +61,9 @@ class Snake(object):
 		for direction in directions:
 			result = self.__getDirectionData(direction)
 			inputData.extend([
-				result["apple"] / length,
-				result["body"] / length,
-				result["wall"] / length
+				result["apple"] ,
+				result["body"] ,
+				result["wall"] 
 			])
 		return inputData
 	
@@ -83,12 +81,12 @@ class Snake(object):
 			x+=direction[0]
 			y+=direction[1]
 			if max(x,y) == len(self.blocks) or min(x,y) < 0:
-				result["wall"] = width - counter
+				result["wall"] = 1 / counter 
 				break
 			elif self.blocks[x][y] == "BODY" and not(result["body"]):
-				result["body"] = width - counter
+				result["body"] = 1
 			elif self.blocks[x][y] == "APPLE":
-				result["apple"] = width - counter
+				result["apple"] = 1
 		return result
 
 			

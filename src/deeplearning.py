@@ -22,9 +22,10 @@ class LearningWeb(object):
             ))
         self.layersWidth = layersWidth
         self.learningRate = 0.7
+        self.mutationRate = 0.1
 
     def __randomLayer(self,width1,width2):
-        return np.array([[random.random()*2 -1 for i in range(width2)] for j in range(width1)])
+        return np.array([[random.uniform(-1,1) for i in range(width2)] for j in range(width1)])
 
     def __resetWeightPoint(self):
         weightCount = len(self.weights)
@@ -54,8 +55,7 @@ class LearningWeb(object):
             return 0
         self.layers[0] = inputLayer
         for layer in range(layerCount-1):
-            self.layers[layer+1] = self.__sigmoid(self.layers[layer].dot(self.weights[layer]))
-        bl = list(self.layers[-1])
+            self.layers[layer+1] = self.__relu(self.layers[layer].dot(self.weights[layer]))
         return np.max(np.argwhere(self.layers[-1] == max(self.layers[-1])))
 
     def backward(self,outputExpect):
@@ -85,6 +85,10 @@ class LearningWeb(object):
         for i in range(5):
             self.backward(result)
 
+    def __relu(self,array):
+        array[array<0] = 0
+        return array
+
     def __sigmoid(self,array):
         return 1 / (1 + np.exp(-array))
 
@@ -94,6 +98,7 @@ class LearningWeb(object):
 def crossover(father,mother):
     if father.layersWidth != mother.layersWidth:
         return 0
+    mutationRate = (father.mutationRate + mother.mutationRate) / 2
     layerCount = len(father.weights)
     children = LearningWeb(father.layersWidth)
     for layer in range(layerCount):
@@ -104,7 +109,13 @@ def crossover(father,mother):
                 children.weights[layer][x][y] = random.choice(
                     (father.weights[layer][x][y],mother.weights[layer][x][y])
                 )
-    children.mutate()
+                if mutationRate> random.random():
+                    np.add(children.weights[layer][x][y],random.gauss(0,1) / 5)
+                    if children.weights[layer][x][y] > 1:
+                        children.weights[layer][x][y] = 1
+                    if children.weights[layer][x][y] < -1:
+                        children.weights[layer][x][y] = -1
+                    
     return children
 
 
