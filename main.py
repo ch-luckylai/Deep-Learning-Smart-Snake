@@ -6,12 +6,32 @@
 #  Copyright 2020 luckylai <luckylai1126@foxmail.com>
 #  
 
-#from src.view import Viewer 
+from src.view import Viewer 
 from src.snake import Snake
 from src.deeplearning import LearningWeb, crossover
+import threading
 
+import copy
 import time
 import random
+import sys
+
+def viewThread(size,queue):
+	while len(queue) == 0:
+		pass
+	viewer = Viewer(size,size)
+	block = queue[0]
+	viewer.createBlocks(block)
+	while viewer.alive:
+		while not len(queue):
+			viewer.updateBlocks(block)
+			viewer.mainloop()
+			time.sleep(0.1)
+		block = queue.pop(0)
+		viewer.updateBlocks(block)
+		viewer.mainloop()
+		time.sleep(0.3)
+	sys.exit()
 
 def find(array,value):
 	indexes = []
@@ -24,9 +44,8 @@ def find(array,value):
 
 
 if __name__ == "__main__":
-	print("Start")
 	DIRECTIONS = ((1,0),(-1,0),(0,1),(0,-1))
-	inpValue = input("Snakes Count (2000): ")
+	inpValue = input("输入训练数量（默认2000）：")
 	try:
 		queueCount = int(inpValue)
 	except:
@@ -34,9 +53,13 @@ if __name__ == "__main__":
 	else:
 		if queueCount <= 0 :
 			queueCount = 2000
-	learningDatas = [LearningWeb([24,18,18,4]) for i in range(queueCount)]
+	learningDatas = [LearningWeb([24,12,8,4]) for i in range(queueCount)]
+	historyQueue = []
 	gen = 1
 	_bestfitness = 0
+	size = 10
+	threadView = threading.Thread(target=viewThread,args=(size,historyQueue))
+	threadView.start()
 	while 1:
 		fitnesses = []
 		bestFitness = 0
@@ -45,52 +68,50 @@ if __name__ == "__main__":
 		for uid in range(queueCount):
 			blocksHistroy = []
 			lifeTime = 0
-			stepLeft = 200
+			stepLeft = 25
 			score = 3
-			blocks = [["EMPTY" for i in range(30)] for j in range(30)]
+			blocks = [["EMPTY" for i in range(size)] for j in range(size)]
 			snake = Snake(blocks)
+			lastDirection = (0,0)
 			while 1:
 				stepLeft -= 1
 				lifeTime += 1
 				learningData = learningDatas[uid]
-				snake.update(DIRECTIONS[
+				result = DIRECTIONS[
 					learningData.forward(snake.getData())
-				])
-				#blocksHistroy.append(blocks[:])
+				]
+				if ((not(result[0] + lastDirection[0]))and(not(result[1] + lastDirection[1]))):
+					result = lastDirection
+				snake.update(result)
+				blocksHistroy.append(copy.deepcopy(blocks))
 				if not snake.alive:
 					break
-				else:
-					pass
 				if not stepLeft:
 					break 
 				if snake.gotScore:
 					score += 1
-					stepLeft = 500 if stepLeft > 400 else stepLeft + 100
+					stepLeft = 500 if stepLeft > 450 else stepLeft + 50
 			if score < 10:
-				fitness = lifeTime ** 2 * 2 ** score
+				fitness = lifeTime * 2 ** score
 			else:
-				fitness = lifeTime ** 2 * 2 ** 10 * (score - 9)
+				fitness = lifeTime * 2 ** 10 * (score - 9)
 			fitnesses.append(fitness)
 			if fitness > bestFitness:
 				bestFitness = fitness
 				replay = blocksHistroy[:]
+		historyQueue.extend(replay[:])
 		t1 = time.time()
 		best = fitnesses.index(max(fitnesses))
 		if bestFitness > _bestfitness:
 			_bestfitness = bestFitness
-		print(f"Forward Time : {t1-t0}s")
-		print(f"Gen : {gen} , Best fitness : {fitnesses[best]}/{_bestfitness} {'[BEST]' if fitnesses[best] == _bestfitness else ''}")
-		newSnakes = [learningDatas[index] for index in find(fitnesses,fitnesses[best]) * 5]
-		print(f"NexAge Count : {len(newSnakes)} + {int(queueCount / 20)}")
-		for i in range(int(queueCount / 20)):
-			newSnakes.append(
-				random.choice(learningDatas)
-			)
+		print(f"代数 : {gen} ,最佳评分 : {fitnesses[best]}/{_bestfitness} {'[BEST]' if fitnesses[best] == _bestfitness else ''}")
+		newSnakes = [learningDatas[index] for index in find(fitnesses,fitnesses[best]) * 2]
 		while len(newSnakes) < queueCount:
 			newSnakes.append(crossover(
 				random.choice(learningDatas),
 				random.choice(learningDatas)
 			))
 		t2 = time.time()
-		print(f"Crossover Time : {t2-t1}s")
 		gen += 1
+
+sys.exit()

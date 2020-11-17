@@ -28,8 +28,9 @@ class Snake(object):
 		if self.length < len(self.snake):
 			deleteX,deleteY = self.snake.pop()
 			self.blocks[deleteX][deleteY] = 'EMPTY'
+		died = 0
 		if max(*head) == len(self.blocks) or min(*head) < 0 or self.blocks[x+dx][y+dy] == 'BODY':
-			self.die()
+			died = 1
 		else:
 			if self.blocks[x+dx][y+dy] == "APPLE":
 				self.length += 1
@@ -37,11 +38,13 @@ class Snake(object):
 				self.gotScore = 1
 			self.blocks[x][y] = 'BODY'
 			self.blocks[x+dx][y+dy] = 'HEAD'
+		if died:
+			self.die()
 		for blocks in self.blocks:
 			if "APPLE" in blocks:
 				return
 		self.spawnApple()
-			
+				
 	def spawnApple(self):
 		x,y = random.randint(0,len(self.blocks)-1),random.randint(0,len(self.blocks[0])-1)
 		while self.blocks[x][y] != "EMPTY":
@@ -84,9 +87,9 @@ class Snake(object):
 				result["wall"] = 1 / counter 
 				break
 			elif self.blocks[x][y] == "BODY" and not(result["body"]):
-				result["body"] = 1
+				result["body"] = 1 / counter
 			elif self.blocks[x][y] == "APPLE":
-				result["apple"] = 1
+				result["apple"] = 1 / counter
 		return result
 
 			

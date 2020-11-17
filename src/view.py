@@ -46,51 +46,42 @@ class Block(Sprite):
 		#	I love JavaScript BETTER because I can use it like
 		#	self.rect.x = (x != "-")? x*32 : self.rect.width
 		
-	def update(self):
-		self.style = self.styles[self.x][self.y]
+	def update(self,block):
+		self.style = block[self.x][self.y]
 		self.image = IMAGES[self.style]
 
 class Viewer(object):
-	def __init__(self,width=800,height=640):
+	def __init__(self,width,height):
 		pygame.init()
-		self.size =(width,height)
+		self.alive = 1
+		self.width = width
+		self.height = height
+		self.size =(width * 32 + 160,height * 32)
 		self.screen = pygame.display.set_mode(self.size)
 		pygame.display.set_caption("BP-Deep-Learning Smart Snake")
 		
 	def mainloop(self):
-		"""
-		It doesn't mean "loop in main" .
-		
-		It is just a body part of loop.
-		"""
 		self.screen.fill(BG_COLOR)
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
+				self.alive = 0
 				sys.exit()
 		self.blocks.draw(self.screen)
 		pygame.display.flip()		
 		
-	def createBlocks(self,x,y):
-		"""
-		For some STUPID reasons , you have to use a square block array.
-		
-		It means , you have to make sure x == y , or it would make some
-		
-		SILLY mistakes.
-		
-		I DO NOT want to fix it because I am TOO LAZY to do it.
-		
-		"""
+	def createBlocks(self,blocks):
+		x = self.width
+		y = self.height
 		self.blocks = Group()
-		style = [["EMPTY" for i in range(x)] for j in range(y)]
+		style = blocks
 		for x0 in range(x):
 			for y0 in range(y):
 				block = Block(self.screen,style,x0,y0)
 				self.blocks.add(block)
 		return style
 		
-	def updateBlocks(self):
-		self.blocks.update()
+	def updateBlocks(self,block):
+		self.blocks.update(block)
 				
 
 # ALMOST FINISHED EVERYTHING 
