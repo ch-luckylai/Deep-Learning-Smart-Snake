@@ -51,26 +51,26 @@ def find(array,value):
 
 if __name__ == "__main__":
 	DIRECTIONS = ((1,0),(-1,0),(0,1),(0,-1))
-	inpValue = input("输入训练数量（默认2000）：")
+	inpValue = input("输入训练数量（默认500）：")
 	try:
 		queueCount = int(inpValue)
 	except:
-		queueCount = 2000
+		queueCount = 500
 	else:
 		if queueCount <= 0 :
-			queueCount = 2000
+			queueCount = 500
 	learningDatas = [LearningWeb([24,12,8,4]) for i in range(queueCount)]
 	historyQueue = []
 	gen = 1
 	_bestfitness = 0
-	inpValue = input("输入场地范围（默认20）：")
+	inpValue = input("输入场地范围（默认15）：")
 	try:
 		size = int(inpValue)
 	except:
-		size = 20
+		size = 15
 	else:
 		if size <= 0 :
-			size = 20
+			size = 15
 	threadView = threading.Thread(target=viewThread,args=(size,historyQueue))
 	threadView.start()
 	while 1:
