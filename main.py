@@ -20,17 +20,23 @@ def viewThread(size,queue):
 	while len(queue) == 0:
 		pass
 	viewer = Viewer(size,size)
-	block = queue[0]
+	block = queue.pop(0)
+	viewer.setInfo(block)
+	while len(queue) == 0:
+		viewer.mainloop() 
+	block = queue.pop(0)
 	viewer.createBlocks(block)
 	while viewer.alive:
 		while not len(queue):
-			viewer.updateBlocks(block)
 			viewer.mainloop()
 			time.sleep(0.1)
 		block = queue.pop(0)
-		viewer.updateBlocks(block)
+		if type(block) == dict:
+			viewer.setInfo(block)
+		else:
+			viewer.updateBlocks(block)
 		viewer.mainloop()
-		time.sleep(0.3)
+		time.sleep(0.1)
 	sys.exit()
 
 def find(array,value):
@@ -57,7 +63,14 @@ if __name__ == "__main__":
 	historyQueue = []
 	gen = 1
 	_bestfitness = 0
-	size = 10
+	inpValue = input("输入场地范围（默认20）：")
+	try:
+		size = int(inpValue)
+	except:
+		size = 20
+	else:
+		if size <= 0 :
+			size = 20
 	threadView = threading.Thread(target=viewThread,args=(size,historyQueue))
 	threadView.start()
 	while 1:
@@ -83,6 +96,7 @@ if __name__ == "__main__":
 				if ((not(result[0] + lastDirection[0]))and(not(result[1] + lastDirection[1]))):
 					result = lastDirection
 				snake.update(result)
+				lastDirection = result
 				blocksHistroy.append(copy.deepcopy(blocks))
 				if not snake.alive:
 					break
@@ -92,26 +106,30 @@ if __name__ == "__main__":
 					score += 1
 					stepLeft = 500 if stepLeft > 450 else stepLeft + 50
 			if score < 10:
-				fitness = lifeTime * 2 ** score
+				fitness = lifeTime * 3 + 3 ** score
 			else:
-				fitness = lifeTime * 2 ** 10 * (score - 9)
+				fitness = lifeTime * 3 + 3 ** 10 * (score - 9)
 			fitnesses.append(fitness)
 			if fitness > bestFitness:
 				bestFitness = fitness
 				replay = blocksHistroy[:]
-		historyQueue.extend(replay[:])
-		t1 = time.time()
+		
+		
 		best = fitnesses.index(max(fitnesses))
 		if bestFitness > _bestfitness:
 			_bestfitness = bestFitness
+		historyQueue.append({
+			"gen":gen,
+			"fitness":fitnesses[best]
+		})
+		historyQueue.extend(replay[:])
 		print(f"代数 : {gen} ,最佳评分 : {fitnesses[best]}/{_bestfitness} {'[BEST]' if fitnesses[best] == _bestfitness else ''}")
-		newSnakes = [learningDatas[index] for index in find(fitnesses,fitnesses[best]) * 2]
+		newSnakes = [learningDatas[index] for index in find(fitnesses,fitnesses[best])]
 		while len(newSnakes) < queueCount:
 			newSnakes.append(crossover(
 				random.choice(learningDatas),
 				random.choice(learningDatas)
 			))
-		t2 = time.time()
 		gen += 1
 
 sys.exit()
